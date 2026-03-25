@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>IPL Auction by Pandu</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.0.1/socket.io.js"></script>
+
+<style>
+body {
+    margin: 0;
+    font-family: Arial;
+    background: linear-gradient(135deg, #141e30, #243b55);
+    color: white;
+    text-align: center;
+}
+
+.header {
+    background: orange;
+    padding: 15px;
+    font-size: 22px;
+}
+
+.player {
+    font-size: 30px;
+    margin: 20px;
+    animation: fadeIn 1s ease-in;
+}
+
+@keyframes fadeIn {
+    from {opacity: 0; transform: scale(0.8);}
+    to {opacity: 1; transform: scale(1);}
+}
+
+.sold {
+    color: yellow;
+    font-size: 25px;
+    animation: blink 1s infinite;
+}
+
+@keyframes blink {
+    50% {opacity: 0;}
+}
+
+button {
+    padding: 10px;
+    margin: 5px;
+    background: orange;
+    border: none;
+    border-radius: 8px;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="header">
+🏏 IPL Auction by Pandu
+</div>
+
+<h2 class="player">{{ player.name }}</h2>
+
+<h3>Current Bid: ₹ <span id="bid">0</span> Cr</h3>
+<h3>Team: <span id="team">None</span></h3>
+
+<select id="teamSelect">
+{% for team in teams %}
+<option value="{{ team }}">{{ team }}</option>
+{% endfor %}
+</select>
+
+<br><br>
+
+<!-- Bid Buttons -->
+<button onclick="bid(0.25)">25L</button>
+<button onclick="bid(0.5)">50L</button>
+<button onclick="bid(1)">1Cr</button>
+<button onclick="bid(2)">2Cr</button>
+<button onclick="bid(5)">5Cr</button>
+
+<div id="sold" class="sold"></div>
+
+<script>
+var socket = io();
+
+function bid(amount){
+    let team = document.getElementById("teamSelect").value;
+
+    socket.emit("bid", {
+        amount: amount,
+        team: team
+    });
+}
+
+socket.on("update", function(data){
+    document.getElementById("bid").innerText = data.amount;
+    document.getElementById("team").innerText = data.team;
+
+    document.getElementById("sold").innerText = "🔥 SOLD to " + data.team;
+});
+</script>
+
+</body>
+</html>
